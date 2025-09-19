@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Painel de Administração</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; padding: 2rem; }
+        .container { background-color: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        h1 { color: #333; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .map-link { text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Painel de Rastreamento e Prosseguimento</h1>
+        <table id="tabelaRegistros">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Prosseguiu</th>
+                    <th>Ver no Mapa</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        function carregarDados() {
+            fetch(`${API_URL}/api/locations`)
+                .then(response => response.json())
+                .then(exibirDados)
+                .catch(error => console.error('Erro ao carregar dados:', error));
+        }
+
+        function exibirDados(registros) {
+            const tbody = document.getElementById('tabelaRegistros').querySelector('tbody');
+            tbody.innerHTML = '';
+            registros.forEach(registro => {
+                const row = document.createElement('tr');
+                const googleMapsUrl = `http://maps.google.com/?q=$${registro.latitude},${registro.longitude}`;
+
+                row.innerHTML = `
+                    <td>${new Date(registro.timestamp).toLocaleString()}</td>
+                    <td>${registro.latitude.toFixed(6)}</td>
+                    <td>${registro.longitude.toFixed(6)}</td>
+                    <td>${registro.prosseguiu ? 'Sim' : 'Não'}</td>
+                    <td><a href="${googleMapsUrl}" target="_blank" class="map-link">Abrir no Maps</a></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        window.onload = carregarDados;
+    </script>
+</body>
+</html>

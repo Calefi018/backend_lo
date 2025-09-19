@@ -1,0 +1,53 @@
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+const logFile = path.join(__dirname, 'locations.json');
+
+// Middleware para habilitar CORS e processar JSON
+app.use(cors());
+app.use(express.json());
+
+// Rota para receber a localização
+app.post('/api/location', (req, res) => {
+    const { latitude, longitude, prosseguiu } = req.body;
+    const timestamp = new Date().toISOString();
+    const data = { timestamp, latitude, longitude, prosseguiu };
+
+    fs.appendFile(logFile, JSON.stringify(data) + '\n', (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Erro ao salvar localização.');
+        }
+        res.status(200).send('Localização salva com sucesso!');
+    });
+});
+
+// Rota para o painel de administração (servir o HTML)
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// Rota para buscar os dados de localização
+app.get('/api/locations', (req, res) => {
+    if (!fs.existsSync(logFile)) {
+        return res.json([]);
+    }
+    fs.readFile(logFile, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Erro ao ler dados de localização.');
+        }
+        const lines = data.trim().split('\n');
+        const locations = lines.map(line => JSON.parse(line));
+        res.json(locations);
+    });
+});
+
+app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+});
