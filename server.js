@@ -8,12 +8,17 @@ const port = process.env.PORT || 3000;
 
 const logFile = path.join(__dirname, 'locations.json');
 
-// Middleware para habilitar CORS e processar JSON
-app.use(cors());
+// NOVO: Configuração do CORS para permitir o seu domínio do GitHub Pages
+const corsOptions = {
+  origin: 'https://calefi018.github.io',
+  optionsSuccessStatus: 200 // Para navegadores antigos
+};
+app.use(cors(corsOptions));
+
+// Middleware para processar JSON
 app.use(express.json());
 
-// **NOVA ROTA PARA A URL PRINCIPAL (`/`)**
-// Esta rota simplesmente retorna uma mensagem para confirmar que o servidor está ativo.
+// Rota para a URL principal (confirma que o servidor está no ar)
 app.get('/', (req, res) => {
     res.send('O servidor de backend para o sistema de rastreamento está no ar!');
 });
