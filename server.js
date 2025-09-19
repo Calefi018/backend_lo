@@ -12,6 +12,12 @@ const logFile = path.join(__dirname, 'locations.json');
 app.use(cors());
 app.use(express.json());
 
+// **NOVA ROTA PARA A URL PRINCIPAL (`/`)**
+// Esta rota simplesmente retorna uma mensagem para confirmar que o servidor está ativo.
+app.get('/', (req, res) => {
+    res.send('O servidor de backend para o sistema de rastreamento está no ar!');
+});
+
 // Rota para receber a localização
 app.post('/api/location', (req, res) => {
     const { latitude, longitude, prosseguiu } = req.body;
